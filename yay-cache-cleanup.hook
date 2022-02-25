@@ -8,4 +8,4 @@ Target = *
 [Action]
 Description = Removing cached package files (including AUR packages), keeping the latest two
 When = PostTransaction
-Exec = /bin/sh -c "paccache -rvk2 -c /var/cache/pacman/pkg $(find $(yay -Pg | jq -r .buildDir) -maxdepth 1 -type d | awk '{ print "-c " $1 }' | tail -n +2 | tr '\n' ' ')"
+Exec = /bin/sh -c "paccache -rvk2 -c /var/cache/pacman/pkg $(find $(sudo -u $SUDO_USER yay -Pg | jq -r .buildDir) -maxdepth 1 -type d | awk '{ print \"-c \" $1 }' | tail -n +2 | tr '\n' ' ')"
