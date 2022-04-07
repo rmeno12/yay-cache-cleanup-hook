@@ -1,0 +1,27 @@
+#!/usr/bin/env /usr/bin/bash
+
+# This script is heavily based on albertored11's version at https://gist.github.com/albertored11/bfc0068f4e43ca0d7ce0af968f7314db
+
+cachedir=$(sudo -u $SUDO_USER yay -Pg | jq -r .buildDir)
+removed="$(comm -23 <(basename -a $(find $cachedir -mindepth 1 -maxdepth 1 -type d) | sort ) <(yay -Qqm) | xargs -r printf "$cachedir/%s\n")"
+
+rm -rf $removed_dirs
+
+for p in "$cachedir"/*/; do
+    name=$(basename "$p")
+    if [[ ! "$name" =~ ^.*-git$ ]]; then
+        pkgver="$(yay -Q $name | cut -d ' ' -f2 | cut -d '-' -f1 | cut -d ':' -f2)"
+        cd "$p"
+        rm -f $(git ls-files --others | grep -v -e '^.*\.pkg\.tar.*$' -e '^.*/$' -e "^.*$pkgver.*$" | xargs -r printf "$p/%s\n")
+    fi
+
+    rm -rf "$p"/src/
+done
+
+pkgdir_args="$(find $cachedir -mindepth 1 -maxdepth 1 -type d | xargs -r printf "-c %s ")"
+/usr/bin/paccache -rvuk0 " $pkgdir_args"
+# echo "1"
+/usr/bin/paccache -ruk1
+# echo "2"
+/usr/bin/paccache -rvk2 /var/cache/pacman/pkg " $pkgdir_args"
+
