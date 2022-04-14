@@ -12,7 +12,7 @@ for p in "$cachedir"/*/; do
     if [[ ! "$name" =~ ^.*-git$ ]]; then
         pkgver="$(yay -Q $name | cut -d ' ' -f2 | cut -d '-' -f1 | cut -d ':' -f2)"
         cd "$p"
-        rm -f $(git ls-files --others | grep -v -e '^.*\.pkg\.tar.*$' -e '^.*/$' -e "^.*$pkgver.*$" | xargs -r printf "$p/%s\n")
+        rm -f $(sudo -u $SUDO_USER git ls-files --others | grep -v -e '^.*\.pkg\.tar.*$' -e '^.*/$' -e "^.*$pkgver.*$" | xargs -r printf "$p/%s\n")
     fi
 
     rm -rf "$p"/src/
