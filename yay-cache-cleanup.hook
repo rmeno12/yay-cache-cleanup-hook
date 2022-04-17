@@ -6,6 +6,9 @@ Operation = Upgrade
 Target = *
 
 [Action]
-Description = Removing cached package files (including AUR packages), keeping the latest two
+Description = Cleaning yay cache
 When = PostTransaction
 Exec = /usr/local/bin/yaycache
+Depends = pacman-contrib
+Depends = jq
+Depends = yay

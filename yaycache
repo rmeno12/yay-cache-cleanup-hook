@@ -5,23 +5,28 @@
 cachedir=$(sudo -u $SUDO_USER yay -Pg | jq -r .buildDir)
 removed="$(comm -23 <(basename -a $(find $cachedir -mindepth 1 -maxdepth 1 -type d) | sort ) <(yay -Qqm) | xargs -r printf "$cachedir/%s\n")"
 
-rm -rf $removed_dirs
+rm -rf $removed
 
 for p in "$cachedir"/*/; do
     name=$(basename "$p")
     if [[ ! "$name" =~ ^.*-git$ ]]; then
-        pkgver="$(yay -Q $name | cut -d ' ' -f2 | cut -d '-' -f1 | cut -d ':' -f2)"
+        pkgver="$(pacman -Q $name | cut -d ' ' -f2 | cut -d '-' -f1 | cut -d ':' -f2)"
         cd "$p"
-        rm -f $(sudo -u $SUDO_USER git ls-files --others | grep -v -e '^.*\.pkg\.tar.*$' -e '^.*/$' -e "^.*$pkgver.*$" | xargs -r printf "$p/%s\n")
+        old_files=$(sudo -u $SUDO_USER git ls-files --others | grep -v -e '^.*\.pkg\.tar.*$' -e '^.*/$' -e "^.*$pkgver.*$" | xargs -r printf "$p/%s\n")
+        rm -f $old_files
     fi
 
     rm -rf "$p"/src/
 done
 
 pkgdir_args="$(find $cachedir -mindepth 1 -maxdepth 1 -type d | xargs -r printf "-c %s ")"
-/usr/bin/paccache -rvuk0 " $pkgdir_args"
-# echo "1"
+
+echo "Removing all cached uninstalled AUR packages"
+/usr/bin/paccache -rvuk0 $pkgdir_args
+echo
+echo "Keeping only 1 version of uninstalled native packages"
 /usr/bin/paccache -ruk1
-# echo "2"
-/usr/bin/paccache -rvk2 /var/cache/pacman/pkg " $pkgdir_args"
+echo
+echo "Keeping only 2 versions of installed packages"
+/usr/bin/paccache -rvk2 -c /var/cache/pacman/pkg $pkgdir_args
 
