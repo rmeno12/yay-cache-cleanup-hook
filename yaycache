@@ -25,7 +25,7 @@ echo "Removing all cached uninstalled AUR packages"
 /usr/bin/paccache -rvuk0 $pkgdir_args
 echo
 echo "Keeping only 1 version of uninstalled native packages"
-/usr/bin/paccache -ruk1
+/usr/bin/paccache -rvuk1
 echo
 echo "Keeping only 2 versions of installed packages"
 /usr/bin/paccache -rvk2 -c /var/cache/pacman/pkg $pkgdir_args
